@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  chatbot:
+    build: ./chatbot
+    container_name: chatbot
+    restart: unless-stopped
+    ports:
+      - "7860:7860"
+ #   volumes:
+ #     - /home/bryan/projects/ollama_chatbot/chatbot: /app
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+
+volumes:
+  ollama_data:
