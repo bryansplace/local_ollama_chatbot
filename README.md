@@ -16,8 +16,11 @@ The following sets up a container to run the Tinyllama model with a very basic G
 ```Hardware``` Obviously the bigger the better...but you can get by with not much. My sandpit system is actually an old Xiaomi Mi A1 smartphone running Alpine linux.
 
 ```Docker``` Installing docker on your specific hardware is well doumented, see [Get started with Docker]( https://www.docker.com/get-started/) ; personally, I SSH into my machine and use the command line [docker engine]( https://docs.docker.com/engine/install).
-```Python```
+
+```Python``` 
+
 ```Git```
+
 
 # Running
 
@@ -43,15 +46,14 @@ Open  your web browser to, eg, 192.168.x.xxx:7860 to open the chatbot interface.
 ## Docker
 
 Starting with the docker-compose.yaml file, we need  two 'services'
-   ```ollama``` which serves the llm model on port 11434 by default.
-    ```chatbot``` the web interface that we need to build using gradio.
+   ```ollama``` which serves the llm model on port 11434 by default. 
+    ```chatbot``` the web interface using gradio.
 
 ```
-version: '3.8'
 
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.6.3
     container_name: ollama
     restart: unless-stopped
     ports:
@@ -72,15 +74,25 @@ services:
 
 volumes:
   ollama_data:
+```
+## Ollama
+
+The standard dockerhub  [ollama image](https://hub.docker.com/r/ollama/ollama) is used without gpu. The specific 0.6.3 version is the latest at time of writing.
+No  llm ( Large language model) is included in the image and the specific model 'tinyllama' needs to be pulled in as specified above. The specific model needs to be the same when gradio requests the response in the chatbot app.py code below.
+Once simple tinyllama is working, other models can be played with, depending on your hardware and patience.
+
 
 ## Chatbot
 
-In a sub directory named chatbot, we put three files
-  app.py , the python code for the interface
-  requirements.txt, the required python dependancies 
-  dockerfile, the instructions to build the chatbot container.
+In a sub directory named chatbot, there are three files
+  1) app.py ; the python code for the interface
+  2) requirements.txt ; the required python dependancies 
+  3) dockerfile ; the instructions to build the chatbot container.
 
-`app.py
+app.py
+This launches the web server on local host port 7860. The interface is minimal input and response.
+
+
 ```
 import gradio as gr
 import requests
@@ -100,7 +112,7 @@ def chat_with_ollama(prompt):
 
 iface = gr.Interface(
     fn=chat_with_ollama,
-    inputs=gr.Textbox(label="Your Message"),
+    inputs=gr.Textbox(label="Input"),
     outputs=gr.Textbox(label="Ollama's Response"),
     title="Bryan's Chatbot",
     description="Talk to my AI"
@@ -128,5 +140,4 @@ COPY . .
 
 CMD ["python", "app.py"]
 ```
-
 
